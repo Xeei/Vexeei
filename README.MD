@@ -1,3 +1,9 @@
+# Vexeei 🗺️
+
+![Vexeei Logo](./asset/vexeei_placeholder.png)
+
+A high-performance AI road segmentation tool.
+
 ```mermaid
 sequenceDiagram
     participant User
