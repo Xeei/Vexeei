@@ -1,17 +1,17 @@
 {
-  "name": "vexeei",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "concurrently \"pnpm --filter web dev\" \"pnpm --filter api dev\" \"cd apps/ai-engine && python main.py\"",
-    "install:all": "pnpm install && cd apps/ai-engine && pip install -r requirements.txt"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.23.0",
-  "dependencies": {
-    "concurrently": "^9.2.1"
-  }
+	"name": "vexeei",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "concurrently \"pnpm --filter web dev\" \"cd apps/ai-engine && .venv/bin/uvicorn main:app --reload --port 8000\"",
+		"install:all": "pnpm install && cd apps/ai-engine && pip install -r requirements.txt"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.23.0",
+	"dependencies": {
+		"concurrently": "^9.2.1"
+	}
 }

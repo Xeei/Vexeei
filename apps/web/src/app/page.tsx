@@ -1,7 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { MapRef } from '../components/Map';
 import {
 	Sheet,
 	SheetContent,
@@ -24,6 +25,15 @@ const Map = dynamic(() => import('../components/Map'), {
 export default function Home() {
 	const [geoJsonData, setGeoJsonData] = useState<any>(null);
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
+	const [aiPolygonPixels, setAiPolygonPixels] = useState<number[][] | null>(
+		null
+	);
+	const [isProcessing, setIsProcessing] = useState(false);
+	const mapRef = useRef<MapRef>(null);
+
+	// Debug State
+	const [debugImageUrl, setDebugImageUrl] = useState<string | null>(null);
+	const [debugPayload, setDebugPayload] = useState<string | null>(null);
 
 	const handlePolygonComplete = (data: any) => {
 		if (data?.features?.length > 0) {
@@ -39,7 +49,11 @@ export default function Home() {
 
 			{/* 2. The Map */}
 			<div className="h-full w-full">
-				<Map onPolygonComplete={handlePolygonComplete} />
+				<Map
+					ref={mapRef}
+					onPolygonComplete={handlePolygonComplete}
+					aiPolygonPixels={aiPolygonPixels}
+				/>
 			</div>
 
 			{/* 3. The Side Panel (Sheet) */}
@@ -94,9 +108,102 @@ export default function Home() {
 							</div>
 						</div>
 
-						<Button className="w-full bg-blue-600 hover:bg-blue-500">
-							Process with AI Engine 🚀
+						<Button
+							className="w-full bg-blue-600 hover:bg-blue-500"
+							disabled={isProcessing}
+							onClick={async () => {
+								if (!mapRef.current) return;
+								setIsProcessing(true);
+
+								try {
+									const snapshot =
+										await mapRef.current.getMapSnapshot();
+									if (!snapshot) {
+										console.error(
+											'Failed to get map snapshot'
+										);
+										return;
+									}
+
+									const formData = new FormData();
+									formData.append(
+										'file',
+										snapshot.blob,
+										'map-snapshot.png'
+									);
+									formData.append(
+										'coords',
+										JSON.stringify(snapshot.point)
+									);
+
+									// Debug Info
+									setDebugImageUrl(
+										URL.createObjectURL(snapshot.blob)
+									);
+									setDebugPayload(
+										JSON.stringify(snapshot.point)
+									);
+
+									const response = await fetch(
+										'http://localhost:8000/segment',
+										{
+											method: 'POST',
+											body: formData,
+										}
+									);
+
+									const data = await response.json();
+									if (data.success && data.polygon) {
+										setAiPolygonPixels(data.polygon);
+										setIsSheetOpen(false); // Close sheet to see map
+									} else {
+										console.error('AI Engine Error:', data);
+									}
+								} catch (error) {
+									console.error(
+										'Error calling AI Engine:',
+										error
+									);
+								} finally {
+									setIsProcessing(false);
+								}
+							}}
+						>
+							{isProcessing
+								? 'Processing...'
+								: 'Process with AI Engine 🚀'}
 						</Button>
+
+						{/* Debug Info Section */}
+						{(debugImageUrl || debugPayload) && (
+							<div className="mt-4 p-4 rounded-lg bg-zinc-900 border border-zinc-800 space-y-4">
+								<h3 className="text-sm font-medium text-zinc-400">
+									Debug Request Info
+								</h3>
+								{debugImageUrl && (
+									<div>
+										<span className="block text-xs text-zinc-500 mb-1">
+											Captured Image
+										</span>
+										<img
+											src={debugImageUrl}
+											alt="Map Snapshot"
+											className="w-full rounded border border-zinc-700"
+										/>
+									</div>
+								)}
+								{debugPayload && (
+									<div>
+										<span className="block text-xs text-zinc-500 mb-1">
+											Payload (Coords)
+										</span>
+										<div className="bg-black p-2 rounded border border-zinc-800 font-mono text-xs text-yellow-400">
+											{debugPayload}
+										</div>
+									</div>
+								)}
+							</div>
+						)}
 					</div>
 				</SheetContent>
 			</Sheet>
