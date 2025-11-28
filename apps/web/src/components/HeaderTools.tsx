@@ -10,9 +10,8 @@ export default function HeaderTools() {
 
 	return (
 		<Fragment>
-			<div className="fixed top-0 left-0 w-full h-10 bg-zinc-950 z-50"></div>
 			<div
-				className="absolute top-10 left-1/2 transform -translate-x-1/2 z-10"
+				className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10"
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 			>
@@ -22,7 +21,7 @@ export default function HeaderTools() {
 						isHovered ? 'h-32 w-64 p-4' : 'h-10 w-32 p-2'
 					)}
 				>
-					<div className="flex items-center justify-center w-full mb-2 shrink-0">
+					<div className="flex items-center justify-center w-full mb-0 shrink-0">
 						<h1 className="font-bold tracking-widest text-blue-500">
 							VEXEEI
 						</h1>

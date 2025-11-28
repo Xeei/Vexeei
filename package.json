@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "concurrently \"pnpm --filter web dev\" \"cd apps/ai-engine && .venv/bin/uvicorn main:app --reload --port 8000\"",
-		"install:all": "pnpm install && cd apps/ai-engine && pip install -r requirements.txt"
+		"dev": "concurrently \"pnpm --filter web dev\" \"pnpm --filter api dev\"",
+		"install:all": "pnpm install"
 	},
 	"keywords": [],
 	"author": "",

@@ -1,167 +1,86 @@
-'use-client'; // 👈 Crucial: Tells Next.js this runs in the browser only
+'use-client';
 
-import {
-	useEffect,
-	useRef,
-	useState,
-	forwardRef,
-	useImperativeHandle,
-} from 'react';
-import mapboxgl from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
-
-// Import the CSS for the map and the drawing tools
+import { useEffect, useRef, useState } from 'react';
+import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { getGeolocation } from '../lib/map';
 import LoadingScreen from './LoadingScreen';
+import { getUniBou } from '@/service/map';
 
-export interface MapRef {
-	getMapSnapshot: () => Promise<{
-		blob: Blob;
-		point: [number, number];
-	} | null>;
-}
+export default function Map() {
+	const mapContainer = useRef<HTMLDivElement>(null);
+	const map = useRef<mapboxgl.Map | null>(null);
+	const [loaded, setLoaded] = useState(false);
 
-interface MapProps {
-	onPolygonComplete: (geoJson: any) => void;
-	aiPolygonPixels?: number[][] | null;
-}
+	useEffect(() => {
+		const initialLoad = async () => {
+			if (map.current) return;
+			if (!mapContainer.current) return;
 
-const Map = forwardRef<MapRef, MapProps>(
-	({ onPolygonComplete, aiPolygonPixels }, ref) => {
-		const mapContainer = useRef<HTMLDivElement>(null);
-		const map = useRef<mapboxgl.Map | null>(null);
-		const draw = useRef<MapboxDraw | null>(null);
-		const [loaded, setLoaded] = useState(false);
+			mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
-		useImperativeHandle(ref, () => ({
-			getMapSnapshot: async () => {
-				if (!map.current || !draw.current) return null;
-
-				const data = draw.current.getAll();
-				if (data.features.length === 0) return null;
-
-				// Simple centroid calculation
-				const feature = data.features[0];
-				// @ts-ignore
-				const coordinates = feature.geometry.coordinates[0];
-				let x = 0,
-					y = 0,
-					len = coordinates.length;
-				coordinates.forEach((coord: any) => {
-					x += coord[0];
-					y += coord[1];
-				});
-				const centerLng = x / len;
-				const centerLat = y / len;
-
-				// Project to pixels
-				const point = map.current!.project([centerLng, centerLat]);
-
-				// Get Blob
-				return new Promise((resolve) => {
-					map.current!.getCanvas().toBlob((blob) => {
-						if (blob) {
-							resolve({ blob, point: [point.x, point.y] });
-						} else {
-							resolve(null);
-						}
-					});
-				});
-			},
-		}));
-
-		useEffect(() => {
-			if (!aiPolygonPixels || !map.current || !draw.current) return;
-
-			console.log('Received AI Polygon Pixels:', aiPolygonPixels);
-
-			// Convert Pixels to Lat/Lng
-			const coordinates = aiPolygonPixels.map((pixel) => {
-				const point = map.current!.unproject([pixel[0], pixel[1]]);
-				return [point.lng, point.lat];
+			const location = await getGeolocation();
+			map.current = new mapboxgl.Map({
+				container: mapContainer.current,
+				style: process.env.NEXT_PUBLIC_MAPBOX_STYLE || '', // 👈 Satellite view
+				center: location || [-74.5, 40], // Default starting position (NYC area)
+				zoom: 15,
+				preserveDrawingBuffer: true, // 👈 Important for toBlob()
 			});
 
-			// Close the loop if not already closed
-			if (
-				coordinates.length > 0 &&
-				(coordinates[0][0] !== coordinates[coordinates.length - 1][0] ||
-					coordinates[0][1] !==
-						coordinates[coordinates.length - 1][1])
-			) {
-				coordinates.push(coordinates[0]);
-			}
+			map.current.on('load', async () => {
+				setLoaded(true);
 
-			const feature: any = {
-				id: 'ai-road-segment',
-				type: 'Feature',
-				properties: {},
-				geometry: {
-					type: 'Polygon',
-					coordinates: [coordinates],
-				},
-			};
+				const ku = await getUniBou('ku');
+				console.log(ku);
+				if (ku && map.current) {
+					if (!map.current.getSource('ku-bou')) {
+						map.current.addSource('ku-bou', {
+							type: 'geojson',
+							data: ku as any,
+						});
+					}
 
-			// Add to Draw
-			draw.current.add(feature);
-			console.log('Added AI Feature to Map:', feature);
-		}, [aiPolygonPixels]);
+					if (!map.current.getLayer('ku-bou-layer')) {
+						map.current.addLayer({
+							id: 'ku-bou-layer',
+							type: 'fill',
+							source: 'ku-bou',
+							layout: {},
+							paint: {
+								'fill-color':
+									ku.features[0]?.properties?.color ||
+									'rgba(73, 163, 103, 0.5)',
+								'fill-opacity': 0.5,
+							},
+						});
+					}
 
-		useEffect(() => {
-			// 1. Prevent double initialization
-			const initialLoad = async () => {
-				if (map.current) return;
-				if (!mapContainer.current) return;
+					if (!map.current.getLayer('ku-bou-extrusion')) {
+						map.current.addLayer({
+							id: 'ku-bou-extrusion',
+							type: 'fill-extrusion',
+							source: 'ku-bou',
+							paint: {
+								'fill-extrusion-color': '#49a367',
+								'fill-extrusion-height': ['get', 'height'],
+								'fill-extrusion-base': 0,
+								'fill-extrusion-opacity': 0.8,
+							},
+						});
+					}
+				}
+			});
+		};
 
-				// 2. Set the token
-				mapboxgl.accessToken =
-					process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+		initialLoad();
+	}, []);
 
-				const location = await getGeolocation();
-				// 3. Initialize the Map
-				map.current = new mapboxgl.Map({
-					container: mapContainer.current,
-					style: process.env.NEXT_PUBLIC_MAPBOX_STYLE || '', // 👈 Satellite view
-					center: location || [-74.5, 40], // Default starting position (NYC area)
-					zoom: 15,
-					preserveDrawingBuffer: true, // 👈 Important for toBlob()
-				});
-
-				// 4. Add the Drawing Tools (The "Vexeei" Magic)
-				draw.current = new MapboxDraw({
-					displayControlsDefault: false,
-					controls: {
-						polygon: true, // Only allow drawing polygons
-						trash: true, // Allow deleting them
-					},
-					defaultMode: 'draw_polygon', // Start in drawing mode automatically
-				});
-
-				map.current.addControl(draw.current, 'top-left');
-
-				// 5. Listen for events (When user finishes drawing)
-				map.current.on('draw.create', (e) => {
-					const data = draw.current?.getAll();
-					console.log('User drew a polygon:', data);
-					onPolygonComplete(data); // Send to parent
-				});
-
-				map.current.on('load', () => {
-					setLoaded(true);
-				});
-			};
-
-			initialLoad();
-		}, [onPolygonComplete]);
-
-		return (
-			<div className="relative w-full h-full">
-				{!loaded && <LoadingScreen />}
-				<div ref={mapContainer} className="w-full h-full" />
-			</div>
-		);
-	}
-);
-
-export default Map;
+	return (
+		<div className="relative w-full h-full">
+			{!loaded && <LoadingScreen />}
+			<div ref={mapContainer} className="w-full h-full" />
+		</div>
+	);
+}
