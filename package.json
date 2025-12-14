@@ -1,17 +1,18 @@
 {
-	"name": "vexeei",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
+	"name": "vexeei-monorepo",
+	"private": true,
 	"scripts": {
-		"dev": "concurrently \"pnpm --filter web dev\" \"pnpm --filter api dev\"",
-		"install:all": "pnpm install"
+		"dev": "turbo dev",
+		"build": "turbo build",
+		"lint": "turbo lint",
+		"clean": "turbo clean"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"packageManager": "pnpm@10.23.0",
-	"dependencies": {
-		"concurrently": "^9.2.1"
+	"devDependencies": {
+		"baseline-browser-mapping": "^2.8.32",
+		"turbo": "latest"
+	},
+	"packageManager": "pnpm@9.1.0",
+	"engines": {
+		"node": ">=18"
 	}
 }

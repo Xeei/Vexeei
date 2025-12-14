@@ -1,27 +1,24 @@
-import uniBou from '../../mock/uni.json';
-import * as turf from '@turf/turf';
-import type { FeatureCollection, Polygon } from 'geojson';
+import axios from 'axios';
 
-export async function getUniBou(uni_name: string) {
+const instance = axios.create({
+	baseURL: process.env.NEXT_PUBLIC_API_URL,
+	timeout: 10000,
+});
+
+export async function getUniBou() {
 	try {
-		if (!(uni_name in uniBou)) {
-			throw new Error('University not found');
-		}
-		const uni_bou = uniBou[
-			uni_name as keyof typeof uniBou
-		] as FeatureCollection<Polygon>;
-		const bbox = turf.bbox(uni_bou);
-		const hexGrid = turf.hexGrid(bbox, 50, {
-			units: 'meters',
-			mask: uni_bou.features[0],
-		});
-		hexGrid.features.forEach((f) => {
-			f.properties = {
-				...f.properties,
-				height: Math.random() * 500,
-			};
-		});
-		return hexGrid;
+		const response = await instance.get(`/map/uni`);
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching mock geojson:', error);
+		return null;
+	}
+}
+
+export async function getUniHexBou() {
+	try {
+		const response = await instance.get(`/map/uni/hex`);
+		return response.data;
 	} catch (error) {
 		console.error('Error fetching mock geojson:', error);
 		return null;

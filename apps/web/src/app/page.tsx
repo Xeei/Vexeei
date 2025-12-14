@@ -1,8 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import HeaderTools from '../components/HeaderTools';
+import HeaderTools from '../components/FeedHeader';
 import LoadingScreen from '@/components/LoadingScreen';
+import GameUpdater from '@/components/GameUpdater';
 
 const Map = dynamic(() => import('../components/Map'), {
 	ssr: false,
@@ -13,7 +14,7 @@ export default function Home() {
 	return (
 		<main className="h-screen w-screen relative overflow-hidden bg-zinc-950">
 			{/* 1. Floating Header / Tools */}
-			<HeaderTools />
+			<GameUpdater />
 
 			{/* 2. The Map */}
 			<div className="h-full w-full">

@@ -1,31 +1,29 @@
 // schema.prisma
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"] // Enable extensions
+	provider = "prisma-client-js"
+	previewFeatures = ["postgresqlExtensions"] // Enable extensions
 }
 
 datasource db {
-  provider = "postgresql"
-  extensions = [postgis]
+	provider = "postgresql"
+	extensions = [postgis]
 }
 
 model University {
-  id        String   @id @default(uuid())
-  name      String
-  // This stores the shape of the Uni (e.g., Chula's boundary)
-  boundary  Unsupported("geometry(Polygon, 4326)")? 
-  
-  // Game data
-  health    Int      @default(100)
-  faction   String
+	id        String   @id @default(uuid())
+	name      String
+	boundary  Unsupported("geometry(Polygon, 4326)")? 
+
+	hex HexTile[]
 }
 
 model HexTile {
-  id        String   @id // The H3 Index (e.g., "8928308280fffff")
-  uniId     String
-  status    String   // "active", "destroyed", "shielded"
-  
-  // Relations (Manual due to Unsupported types usually)
-  // You might keep a simple relation ID here
+	id        String  @id  @default(uuid())
+	uniId     String
+	status    String @default("active")   // "active", "destroyed", "shielded"
+	health   Int @default(100)
+	boundary  Unsupported("geometry(Polygon, 4326)")? 
+
+  	uni University @relation(fields: [uniId], references: [id])
 }

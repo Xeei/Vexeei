@@ -1,12 +1,20 @@
 'use-client';
 
 import { useEffect, useRef, useState } from 'react';
-import mapboxgl, { GeoJSONFeature } from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { getGeolocation } from '../lib/map';
 import LoadingScreen from './LoadingScreen';
-import { getUniBou } from '@/service/map';
+import { getUniBou, getUniHexBou } from '@/service/map';
+
+interface University {
+	id: string;
+	name: string;
+	faction: string;
+	health: number;
+	boundary: GeoJSON.Polygon;
+}
 
 export default function Map() {
 	const mapContainer = useRef<HTMLDivElement>(null);
@@ -32,49 +40,142 @@ export default function Map() {
 			map.current.on('load', async () => {
 				setLoaded(true);
 
-				const ku = await getUniBou('ku');
-				console.log(ku);
-				if (ku && map.current) {
-					if (!map.current.getSource('ku-bou')) {
-						map.current.addSource('ku-bou', {
-							type: 'geojson',
-							data: ku as any,
-						});
-					}
+				const uniBou = await getUniBou();
+				if (!uniBou) return;
 
-					if (!map.current.getLayer('ku-bou-layer')) {
-						map.current.addLayer({
-							id: 'ku-bou-layer',
-							type: 'fill',
-							source: 'ku-bou',
-							layout: {},
-							paint: {
-								'fill-color':
-									ku.features[0]?.properties?.color ||
-									'rgba(73, 163, 103, 0.5)',
-								'fill-opacity': 0.5,
-							},
-						});
-					}
+				const formattedData: GeoJSON.FeatureCollection = {
+					type: 'FeatureCollection',
+					features: Array.isArray(uniBou)
+						? uniBou.map((u: University) => ({
+								type: 'Feature',
+								geometry: u.boundary,
+								properties: {
+									id: u.id,
+									name: u.name,
+									faction: u.faction,
+									health: u.health,
+								},
+						  }))
+						: [],
+				};
 
-					if (!map.current.getLayer('ku-bou-extrusion')) {
-						map.current.addLayer({
-							id: 'ku-bou-extrusion',
-							type: 'fill-extrusion',
-							source: 'ku-bou',
-							paint: {
-								'fill-extrusion-color': '#49a367',
-								'fill-extrusion-height': ['get', 'height'],
-								'fill-extrusion-base': 0,
-								'fill-extrusion-opacity': 0.8,
-							},
-						});
-					}
+				if (!map.current?.getSource('uni-bou')) {
+					map.current?.addSource('uni-bou', {
+						type: 'geojson',
+						data: formattedData,
+					});
 				}
+
+				if (!map.current?.getLayer('uni-bou-fill')) {
+					map.current?.addLayer({
+						id: 'uni-bou-fill',
+						type: 'fill',
+						source: 'uni-bou',
+						paint: {
+							'fill-color': [
+								'match',
+								['get', 'faction'],
+								'NEUTRAL',
+								'#3d71c4',
+								'ALLY',
+								'#00FF00',
+								'ENEMY',
+								'#FF0000',
+								'#888888',
+							],
+							'fill-opacity': 0.4,
+						},
+					});
+				}
+
+				if (!map.current?.getLayer('uni-bou-line')) {
+					map.current?.addLayer({
+						id: 'uni-bou-line',
+						type: 'line',
+						source: 'uni-bou',
+						paint: {
+							'line-color': '#3d71c4',
+							'line-width': 2,
+						},
+					});
+				}
+
+				// fetch and add hexagon boundaries layer
+				const uniHexBou = await getUniHexBou();
+				if (!uniHexBou) return;
+
+				const formattedHexData: GeoJSON.FeatureCollection = {
+					type: 'FeatureCollection',
+					features: Array.isArray(uniHexBou)
+						? uniHexBou.map((u: University) => ({
+								type: 'Feature',
+								geometry: u.boundary,
+								properties: {
+									id: u.id,
+									name: u.name,
+									health: u.health,
+								},
+						  }))
+						: [],
+				};
+
+				if (!map.current?.getSource('uni-hex-bou')) {
+					map.current?.addSource('uni-hex-bou', {
+						type: 'geojson',
+						data: formattedHexData,
+					});
+				}
+
+				if (!map.current?.getLayer('uni-hex-bou-line')) {
+					map.current?.addLayer({
+						id: 'uni-hex-bou-line',
+						type: 'line',
+						source: 'uni-hex-bou',
+						paint: {
+							'line-color': '#FFAA00',
+							'line-width': 2,
+						},
+					});
+				}
+
+				// extrude hex by health property
+				if (!map.current?.getLayer('uni-hex-bou-extrude')) {
+					map.current?.addLayer({
+						id: 'uni-hex-bou-extrude',
+						type: 'fill-extrusion',
+						source: 'uni-hex-bou',
+						paint: {
+							'fill-extrusion-color': '#FFAA00',
+							'fill-extrusion-height': [
+								'*',
+								['get', 'health'],
+								10,
+							],
+							'fill-extrusion-opacity': 0.6,
+						},
+					});
+				}
+
+				// aniamte to hex layer extent
+				const bounds = new mapboxgl.LngLatBounds();
+				formattedHexData.features.forEach((feature) => {
+					const coordinates = feature.geometry.coordinates[0];
+					coordinates.forEach((coord) => {
+						bounds.extend(coord as [number, number]);
+					});
+				});
+				map.current?.fitBounds(bounds, { padding: 20 });
 			});
 		};
 
 		initialLoad();
+
+		return () => {
+			if (map.current) {
+				map.current.remove();
+				map.current = null;
+			}
+		};
 	}, []);
 
 	return (

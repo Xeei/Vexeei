@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+		<title>University Warfare Hexgrid Map</title>
+		<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+			rel="stylesheet"
+		/>
+		<style>
+			.material-symbols-outlined {
+				font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0,
+					'opsz' 24;
+			}
+		</style>
+		<script id="tailwind-config">
+			tailwind.config = {
+				darkMode: 'class',
+				theme: {
+					extend: {
+						colors: {
+							primary: '#1258e2',
+							'background-light': '#f6f6f8',
+							'background-dark': '#101622',
+							accent: '#00BFFF',
+							'surface-dark': '#1A202C',
+							'text-neutral': '#A0AEC0',
+							'border-dark': '#4A5568',
+						},
+						fontFamily: {
+							display: ['Space Grotesk', 'sans-serif'],
+						},
+						borderRadius: {
+							DEFAULT: '0.25rem',
+							lg: '0.5rem',
+							xl: '0.75rem',
+							full: '9999px',
+						},
+					},
+				},
+			};
+		</script>
+	</head>
+	<body
+		class="bg-background-light dark:bg-background-dark font-display text-white"
+	>
+		<div class="flex flex-col h-screen max-h-screen">
+			<!-- Top Nav Bar -->
+			<header
+				class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-dark/50 px-6 py-3 bg-surface-dark flex-shrink-0"
+			>
+				<div class="flex items-center gap-4 text-white">
+					<span class="material-symbols-outlined text-accent text-2xl"
+						>school</span
+					>
+					<h1
+						class="text-white text-lg font-bold leading-tight tracking-[-0.015em]"
+					>
+						University Warfare
+					</h1>
+				</div>
+				<div class="flex items-center gap-9">
+					<a
+						class="text-text-neutral text-sm font-medium leading-normal"
+						href="#"
+						>Campaign: West Coast Domination</a
+					>
+				</div>
+				<div class="flex items-center gap-2">
+					<button
+						class="flex items-center justify-center rounded-lg h-10 w-10 bg-surface-dark/50 hover:bg-white/10 text-text-neutral hover:text-white"
+					>
+						<span class="material-symbols-outlined">settings</span>
+					</button>
+				</div>
+			</header>
+			<!-- Main Content Area -->
+			<main class="flex-grow flex p-4 gap-4 overflow-hidden">
+				<!-- Left Column: Player Status & Mini Map -->
+				<aside class="flex flex-col gap-4 w-72 flex-shrink-0">
+					<!-- Player Status Panel -->
+					<div
+						class="flex flex-col gap-4 rounded-lg bg-surface-dark p-4 border border-border-dark/50"
+					>
+						<div class="flex items-center gap-4">
+							<div
+								class="w-16 h-16 bg-center bg-no-repeat aspect-square bg-cover rounded-lg flex-shrink-0"
+								data-alt="Stanford University crest, a red shield with a tree."
+								style="
+									background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuALQpluTYxjA9Xt1qvFGLegaHgv10442mlhJeZLBlhad6acz51XrcfjGvCFAM0GiEuCrFLKfI2QyWkzbjZojVvw_cCayY2X4gZNmXvinQZzfCWcrxQ9q8ygIEMygCAK6itCYl32vntfP85EXm736t2x26-V-fqDHXfPFNs6xbLE6QtPXylXyUEeO6IadHFz77-EpmTN6NAO6P5hqREP6hV--8bOSV6QQ0cTRaomK9XcG15QILvjZlvWHoagHBtqK6DoOiVvKGqnzhw');
+								"
+							></div>
+							<div class="flex flex-col gap-1">
+								<p
+									class="text-text-neutral text-sm font-normal leading-normal"
+								>
+									Player 1
+								</p>
+								<p
+									class="text-white text-base font-bold leading-tight"
+								>
+									Stanford University
+								</p>
+							</div>
+						</div>
+						<div class="grid grid-cols-2 gap-4 text-center">
+							<div class="bg-black/20 p-2 rounded-md">
+								<p
+									class="text-text-neutral text-xs uppercase tracking-wider"
+								>
+									Funding
+								</p>
+								<p class="text-white font-bold text-lg">
+									$12,500
+								</p>
+							</div>
+							<div class="bg-black/20 p-2 rounded-md">
+								<p
+									class="text-text-neutral text-xs uppercase tracking-wider"
+								>
+									Research
+								</p>
+								<p class="text-white font-bold text-lg">
+									850 RP
+								</p>
+							</div>
+						</div>
+						<div class="bg-black/20 p-2 rounded-md text-center">
+							<p
+								class="text-text-neutral text-xs uppercase tracking-wider"
+							>
+								Territories
+							</p>
+							<p class="text-white font-bold text-lg">12</p>
+						</div>
+					</div>
+					<!-- Mini-Map Panel -->
+					<div
+						class="flex-grow flex flex-col rounded-lg bg-surface-dark border border-border-dark/50 overflow-hidden"
+					>
+						<h2
+							class="text-white text-sm font-bold leading-tight tracking-[-0.015em] px-4 py-2 border-b border-border-dark/50"
+						>
+							Global View
+						</h2>
+						<div
+							class="flex-grow bg-cover bg-center"
+							data-alt="A simplified abstract hex grid map of the west coast"
+							style="
+								background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDj0RVA8HcoZK2oaOFIvr4cFZreFI2MqoBIS8PL8f5wNzlbrbA5oVBdxe-9o9VGUmPRoqE6iyC_K0WzUrwMgtyNzdn9IfGtl3RFBblCOJBSUldPxkSc58M0ykxCzo3y4m8gzJO2RgaIgKwNki3JZcbgEWKtp1sKXVDXI_kjEBM5A-1TcGQKOUFJqjZsTtvSZ0TfAuCbM-mvrZ10eb1rQiUHuH4jqhB0S8ZkuL4h8vIJHSrUYtdAkXjEaFiP5xCvldGZPdtvBGpzOmU');
+							"
+						></div>
+					</div>
+				</aside>
+				<!-- Center Column: Map -->
+				<div class="flex-grow flex flex-col relative @container">
+					<div
+						class="bg-cover bg-center flex min-h-0 flex-1 flex-col justify-between rounded-lg border border-border-dark/50"
+						data-alt="A detailed hex grid map showing various university territories in different colors"
+						data-location="West Coast, USA"
+						style="
+							background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCA8ZcLGqmZrUF5u59hiJGGCV1zD0qt2kIYziRYEu3gOemfKE-bta3NdOAFsYWknKNmQ_QPnOvFPmBPbYPaW1VF87j_-P0bNQ-mGGKxrD_qjk-WJNhJ6lIurmkQwhfH-dNrtn2ukiWQYjLF_3c5lld60XN4Aw_NEcJURmdjxrxtfgVKloASfVT2EYHnROo9EZsJE95aWl3iAhmgMC3qMdLWcHZjX8VGvfvyDmoQ_idOQgnSKVXaR7rBtH5dKCpWTwgjDOKsOLltujU');
+						"
+					>
+						<div class="flex flex-col items-end gap-3 p-4">
+							<div class="flex flex-col gap-0.5">
+								<button
+									class="flex size-10 items-center justify-center rounded-t-lg bg-surface-dark shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:bg-accent hover:text-white text-text-neutral"
+								>
+									<span class="material-symbols-outlined"
+										>add</span
+									>
+								</button>
+								<button
+									class="flex size-10 items-center justify-center rounded-b-lg bg-surface-dark shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:bg-accent hover:text-white text-text-neutral"
+								>
+									<span class="material-symbols-outlined"
+										>remove</span
+									>
+								</button>
+							</div>
+							<button
+								class="flex size-10 items-center justify-center rounded-lg bg-surface-dark shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:bg-accent hover:text-white text-text-neutral"
+							>
+								<span class="material-symbols-outlined"
+									>navigation</span
+								>
+							</button>
+						</div>
+					</div>
+				</div>
+				<!-- Right Column: Selected Hex & Event Log -->
+				<aside class="flex flex-col gap-4 w-80 flex-shrink-0">
+					<!-- Selected Hex Panel -->
+					<div
+						class="flex flex-col rounded-lg bg-surface-dark p-4 border border-border-dark/50"
+					>
+						<h2
+							class="text-accent text-base font-bold leading-tight tracking-[-0.015em] pb-2 text-left border-b border-border-dark/50"
+						>
+							Selected: Stanford
+						</h2>
+						<div class="py-2 grid grid-cols-[30%_1fr] gap-x-4">
+							<div
+								class="col-span-2 grid grid-cols-subgrid border-b border-border-dark/50 py-3"
+							>
+								<p
+									class="text-text-neutral text-sm font-normal leading-normal"
+								>
+									Owner
+								</p>
+								<p
+									class="text-white text-sm font-semibold leading-normal"
+								>
+									Player 1
+								</p>
+							</div>
+							<div
+								class="col-span-2 grid grid-cols-subgrid border-b border-border-dark/50 py-3"
+							>
+								<p
+									class="text-text-neutral text-sm font-normal leading-normal"
+								>
+									Defense
+								</p>
+								<p
+									class="text-white text-sm font-semibold leading-normal"
+								>
+									80/100
+								</p>
+							</div>
+							<div
+								class="col-span-2 grid grid-cols-subgrid border-b border-border-dark/50 py-3"
+							>
+								<p
+									class="text-text-neutral text-sm font-normal leading-normal"
+								>
+									Research
+								</p>
+								<p
+									class="text-white text-sm font-semibold leading-normal"
+								>
+									+150 RP / turn
+								</p>
+							</div>
+						</div>
+						<h3
+							class="text-white text-sm font-bold leading-tight tracking-[-0.015em] pt-4 pb-2"
+						>
+							Units Present
+						</h3>
+						<div class="flex flex-col gap-2">
+							<div
+								class="flex items-center justify-between gap-4 rounded-lg bg-black/20 p-3"
+							>
+								<div class="flex flex-col gap-0">
+									<p
+										class="text-white text-sm font-bold leading-tight"
+									>
+										Research Team
+									</p>
+									<p
+										class="text-text-neutral text-xs font-normal leading-normal"
+									>
+										Enhances research output
+									</p>
+								</div>
+								<div
+									class="w-10 h-10 bg-center bg-no-repeat aspect-square bg-cover rounded-md"
+									data-alt="Icon of a scientist or researcher"
+									style="
+										background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDxE1ujE99HCrmadSi2GOXIil2jrF0JSWZniInnXseyceKvm32qz6AhoICGlqO_klzjB3YgJ_w0J8PyZ4ZJ_YDk06jdujf4NydYWMgG-BObys62WSUxs-Xk9hMKAn2DWgi4GXKUH1TcvtrMk3Nc8tGC4VWY-jcW-xNr7XLQjZBFv26PIstc6m4kHliDiX9lYHaIR_MY1mYo9Y_mExbqRplZ5VHetWGX4aIDkLn-kVC5VnbjPqwpxTt_6sEBvb8jCFCf_3TIWWBZPEg');
+									"
+								></div>
+							</div>
+							<div
+								class="flex items-center justify-between gap-4 rounded-lg bg-black/20 p-3"
+							>
+								<div class="flex flex-col gap-0">
+									<p
+										class="text-white text-sm font-bold leading-tight"
+									>
+										Campus Security
+									</p>
+									<p
+										class="text-text-neutral text-xs font-normal leading-normal"
+									>
+										Provides basic defense
+									</p>
+								</div>
+								<div
+									class="w-10 h-10 bg-center bg-no-repeat aspect-square bg-cover rounded-md"
+									data-alt="Icon of a security shield"
+									style="
+										background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCaC2VUhhrJU7myJI6bQCtzrabCS2GjZCV5NzfLuPhSM8EmVPoZdo1DSYn7ARLtmXrpct8X-xvtJBd9SPcJV6f-9jf33aaDKLPs6ohOf8j2-i7p0GJtD7wbn7Wmh4ROvqFVW4wQEDxfPJWezzW_Hi3rFHINz6uJRbpitj0h5_9BhZHkz9Y-kpXUyTrCBJdj5pIWVk3ypUMvRLlWLPT8I0cj0AlksLzfRmdLr7aZWC2aM68Xf7mbMpan8LR9W_TE1Cs-9UPZWVzeEAA');
+									"
+								></div>
+							</div>
+						</div>
+					</div>
+					<!-- Event Log Panel -->
+					<div
+						class="flex-grow flex flex-col rounded-lg bg-surface-dark border border-border-dark/50 overflow-hidden"
+					>
+						<div
+							class="px-4 py-2 border-b border-border-dark/50 flex items-center justify-between"
+						>
+							<h2
+								class="text-white text-sm font-bold leading-tight tracking-[-0.015em]"
+							>
+								Event Log
+							</h2>
+							<button class="text-text-neutral hover:text-white">
+								<span
+									class="material-symbols-outlined text-base"
+									>unfold_less</span
+								>
+							</button>
+						</div>
+						<div
+							class="p-4 flex-grow overflow-y-auto space-y-3 text-sm"
+						>
+							<p>
+								<span class="text-green-400">[Turn 12]</span>
+								Gained $12,500 funding.
+							</p>
+							<p>
+								<span class="text-red-400">[Turn 11]</span> UCLA
+								attacked Berkeley. Battle lost.
+							</p>
+							<p>
+								<span class="text-yellow-400">[Turn 11]</span>
+								USC recruited a new unit.
+							</p>
+							<p>
+								<span class="text-blue-400">[Turn 11]</span>
+								Research on 'Advanced AI' completed.
+							</p>
+						</div>
+					</div>
+				</aside>
+			</main>
+			<!-- Bottom Action & Turn Control Panel -->
+			<footer
+				class="flex items-center justify-between gap-6 p-4 bg-surface-dark border-t border-border-dark/50 flex-shrink-0"
+			>
+				<div class="flex items-center gap-2">
+					<button
+						class="flex items-center justify-center gap-2 px-4 h-12 rounded-lg bg-black/20 text-text-neutral hover:bg-accent hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+						disabled=""
+					>
+						<span class="material-symbols-outlined">group_add</span>
+						<span class="font-bold">Recruit Unit</span>
+					</button>
+					<button
+						class="flex items-center justify-center gap-2 px-4 h-12 rounded-lg bg-black/20 text-text-neutral hover:bg-accent hover:text-white"
+					>
+						<span class="material-symbols-outlined"
+							>domain_add</span
+						>
+						<span class="font-bold">Upgrade</span>
+					</button>
+					<button
+						class="flex items-center justify-center gap-2 px-4 h-12 rounded-lg bg-black/20 text-text-neutral hover:bg-accent hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+						disabled=""
+					>
+						<span class="material-symbols-outlined">swords</span>
+						<span class="font-bold">Attack</span>
+					</button>
+				</div>
+				<div class="flex items-center gap-6">
+					<div class="text-center">
+						<p class="text-text-neutral text-sm">Current Turn</p>
+						<p class="text-white font-bold text-2xl">12</p>
+					</div>
+					<button
+						class="px-8 h-12 rounded-lg bg-accent text-white font-bold text-lg hover:bg-blue-400 transition-colors"
+					>
+						End Turn
+					</button>
+				</div>
+			</footer>
+		</div>
+	</body>
+</html>
